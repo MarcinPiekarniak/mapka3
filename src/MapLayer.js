@@ -19,7 +19,6 @@ export default class MapLayer extends GeoJsonLayer {
         getLineColor: f => props.lineColor || [255, 255, 255],
         // lightSettings: LIGHT_SETTINGS,
         // pickable: Boolean(this.props.onHover),
-        onHover: props.hover ? props.handleHover : (info => null),
         ...props
       })
 	}
