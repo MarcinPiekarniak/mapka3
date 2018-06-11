@@ -3,7 +3,6 @@ import {json as requestJson} from 'd3-request';
 import LAYER_CONFIGS from './layer-configs.js';
 import AirportMap from './AirportMap.js';
 import MapLayer from './MapLayer.js';
-import {PolygonLayer} from 'deck.gl'
 
 const DATA_PREFIX = './data/';
 

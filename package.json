@@ -1,6 +1,6 @@
 {
   "name": "lotnisko-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "homepage": "http://students.mimuw.edu.pl/~pw347276/build",
   "dependencies": {

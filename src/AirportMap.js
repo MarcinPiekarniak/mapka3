@@ -6,6 +6,7 @@ const {MapController} = experimental;
 export default class AirportMap extends Component {
   constructor(props) {
     super(props);
+  	this.vId = 0;
     this.state = {
       viewport: {
         latitude: 54.3792,
@@ -17,14 +18,26 @@ export default class AirportMap extends Component {
       tooltip: {
       	x: 0,
       	y: 0,
-      	object: null
+      	object: null,
+      	layer: null
+      },
+      infowindow: {
+      	object: null,
+      	layer: null
       },
       width: 500,
       height: 500,
       car: {
         lat: 54.3792,
         lng: 18.468
-      }
+      },
+      vehicles: (new Array(1000)).fill(null).map(() => ({
+            		position: [18.468 + 0.01 * (Math.random() > 0.5 ? Math.random() : -Math.random()),
+            			54.3792 + 0.002 * (Math.random() > 0.5 ? Math.random() : -Math.random())],
+            		bearing: Math.floor(360 * Math.random()),
+            		speed: 0.000002 + 0.000002 * Math.random(),
+            		id: ++this.vId
+	  }))
     };
 
     // this.moveCar = this.moveCar.bind(this);
@@ -33,7 +46,15 @@ export default class AirportMap extends Component {
   componentDidMount() {
     window.addEventListener('resize', this._resize.bind(this));
     window.addEventListener('keydown', this.moveCar.bind(this), true);
+    this.timerID = setInterval(
+      () => this._updateVehiclesPositions(),
+      80
+    );
     this._resize();
+  }
+
+  componentWillUnmount() {
+  	clearInterval(this.timerID);
   }
 
   _resize() {
@@ -45,28 +66,87 @@ export default class AirportMap extends Component {
 
   _updateTooltip(info) {
   	if (info) {
-  		const {x, y, object} = info;
-    	this.setState({tooltip: {x, y, object}});
+  		const {x, y, object, layer} = info;
+		this.setState({tooltip: {x, y, object, layer}});
     } else {
-    	this.setState({tooltip: {x: 0, y: 0, object: null}});
+    	this.setState({tooltip: {x: 0, y: 0, object: null, layer: null}});
     }
   }
 
-  _renderTooltip() {
-  	const {x, y, object} = this.state.tooltip;
+  _updateInfoWindow(info) {
+  	if (info) {
+  		const {object, layer} = info;
+		this.setState({infowindow: {object, layer}});
+    } else {
+    	this.setState({infowindow: {object: null, layer: null}});
+    }	
+  }
 
-    if (!object) {
+  _getObjectInfo(object) {
+  	return Object.keys(object).map(k => <div key={k}>{k}: {object[k]}</div>);
+  }
+
+  _renderTooltip() {
+  	const {x, y, object, layer} = this.state.tooltip;
+
+    if (!object || !layer) {
       return null;
     }
-    
-    const listProps = Object.keys(object.properties).map(k => <div key={k}>{k}: {object.properties[k]}</div>);
 
-    return (
+	let info = layer.id === "vehicles layer" ? this._getObjectInfo(object) : this._getObjectInfo(object.properties);
+
+	return (
       <div className="tooltip"
            style={{left: x, top: y}}>
-        {listProps}
+        {info}
       </div>
     );
+    
+  }
+
+  _renderInfoWindow() {
+  	const {object, layer} = this.state.infowindow;
+
+    if (!object || !layer) {
+      return null;
+    }
+
+  	let info = layer.id === "vehicles layer" ? this._getObjectInfo(object) : this._getObjectInfo(object.properties);
+  	return (
+      <div className="infowindow">
+        {info}
+      </div>
+    );
+  }
+
+  _updateVehiclesPositions() {
+  	this.setState(prevState => {
+  		const newVehicles =  prevState.vehicles.map(v => ({
+  			position: [
+  				v.position[0] + v.speed * Math.cos(v.bearing * Math.PI / 180),
+  				v.position[1] + v.speed * Math.sin(v.bearing * Math.PI / 180)
+  			],
+  			bearing: v.bearing,
+  			speed: v.speed,
+  			id: v.id
+  		}))
+
+  		let newObject = prevState.infowindow.object;
+  		if (prevState.infowindow && prevState.infowindow.layer && prevState.infowindow.layer.id === "vehicles layer" && prevState.infowindow.object && prevState.infowindow.object.id) {
+  			newObject = newVehicles.filter(v => v.id === prevState.infowindow.object.id).slice(-1)[0];
+  			if(!newObject) {
+  				newObject = prevState.infowindow.object;
+  			}
+  		}
+
+  		return {
+  			vehicles: newVehicles,
+  			infowindow: {
+  				...prevState.infowindow,
+  				object: newObject
+  			}
+  		}
+  	});
   }
 
   // left = 37
@@ -101,7 +181,6 @@ export default class AirportMap extends Component {
         return {};
     };
 
-    console.log("moving...");
     this.setState(prevState => {
       return {
         car: {
@@ -124,9 +203,24 @@ export default class AirportMap extends Component {
       }],
       outline: false
     }));
+    allLayers.push(new ScatterplotLayer({
+      id: "vehicles layer",
+      data: this.state.vehicles.map(v => ({
+        radius: 1,
+        color: [70, 70, 255],
+        ...v
+      })),
+      outline: false,
+      fp64: true,
+      pickable: true,
+      transitions: {
+      	getPositions: 80
+      }
+    }));
 
     return (<div>
       {this._renderTooltip()}
+      {this._renderInfoWindow()}
       <MapController
         {...viewport}
         width={width}
@@ -139,6 +233,7 @@ export default class AirportMap extends Component {
           height={height}
           layers={allLayers}
           onLayerHover={this._updateTooltip.bind(this)}
+          onLayerClick={this._updateInfoWindow.bind(this)}
         />
       </MapController>
       </div>
