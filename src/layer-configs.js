@@ -19,7 +19,7 @@ const LAYER_CONFIGS = [
     file: "05_poziome_oznaczenia_pasa.geojson",
     color: [255, 255, 255],
   },
-  
+
   {
     file: "06_linie_przerywane_pasa.geojson",
     color: [255, 255, 255]
@@ -131,3 +131,11 @@ const LAYER_CONFIGS = [
 ];
 
 export default LAYER_CONFIGS;
+/*
+console.log('const layers = [')
+for (var i = 0; i < LAYER_CONFIGS.length; ++i) {
+  console.log(`  json_${LAYER_CONFIGS[i].file},`);
+  //console.log(`import json_${LAYER_CONFIGS[i].file} from './data2/${LAYER_CONFIGS[i].file}.json'`);
+}
+console.log(']');
+*/

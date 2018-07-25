@@ -17,6 +17,9 @@ export default class MapLayer extends GeoJsonLayer {
         getElevation: f => props.elevation || 0,
         getFillColor: f => props.color || [255, 255, 255],
         getLineColor: f => props.lineColor || [255, 255, 255],
+				parameters: {
+          depthTest: false
+				},
         // lightSettings: LIGHT_SETTINGS,
         // pickable: Boolean(this.props.onHover),
         ...props

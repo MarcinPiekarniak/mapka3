@@ -4,7 +4,8 @@
   "private": true,
   "homepage": "http://students.mimuw.edu.pl/~pw347276/build",
   "dependencies": {
-    "deck.gl": "^5.1.4",
+    "d3-request": "^1.0.6",
+    "deck.gl": "5.1.4",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-scripts": "1.1.4"

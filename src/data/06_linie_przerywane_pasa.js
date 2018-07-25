@@ -1,0 +1,9 @@
+const jsonResponse = {
+"type": "FeatureCollection",
+"name": "linie_przerywane_pasa",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 0 }, "geometry": { "type": "LineString", "coordinates": [ [ 18.490748305697331, 54.371502840816788 ], [ 18.453051791150916, 54.380824749537226 ] ] } }
+]
+};
+export default jsonResponse;

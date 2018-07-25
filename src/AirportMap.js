@@ -6,6 +6,8 @@ const {MapController} = experimental;
 export default class AirportMap extends Component {
   constructor(props) {
     super(props);
+    console.log('props');
+    console.log(props);
   	this.vId = 0;
     this.state = {
       viewport: {
@@ -31,7 +33,7 @@ export default class AirportMap extends Component {
         lat: 54.3792,
         lng: 18.468
       },
-      vehicles: (new Array(1000)).fill(null).map(() => ({
+      vehicles: (new Array(5)).fill(null).map(() => ({
             		position: [18.468 + 0.01 * (Math.random() > 0.5 ? Math.random() : -Math.random()),
             			54.3792 + 0.002 * (Math.random() > 0.5 ? Math.random() : -Math.random())],
             		bearing: Math.floor(360 * Math.random()),
@@ -79,7 +81,7 @@ export default class AirportMap extends Component {
 		this.setState({infowindow: {object, layer}});
     } else {
     	this.setState({infowindow: {object: null, layer: null}});
-    }	
+    }
   }
 
   _getObjectInfo(object) {
@@ -101,7 +103,7 @@ export default class AirportMap extends Component {
         {info}
       </div>
     );
-    
+
   }
 
   _renderInfoWindow() {
@@ -201,7 +203,10 @@ export default class AirportMap extends Component {
         radius: 5,
         color: [70, 70, 255]
       }],
-      outline: false
+      outline: false,
+      parameters: {
+          depthTest: false
+      }
     }));
     allLayers.push(new ScatterplotLayer({
       id: "vehicles layer",
@@ -215,9 +220,13 @@ export default class AirportMap extends Component {
       pickable: true,
       transitions: {
       	getPositions: 80
+      },
+      parameters: {
+          depthTest: false
       }
     }));
-
+    //console.log(this.props.layers);
+    //console.log(allLayers);
     return (<div>
       {this._renderTooltip()}
       {this._renderInfoWindow()}
